@@ -18,13 +18,13 @@ int ehPrimo(unsigned int i);
 int main() {
   unsigned int i, j;
   int pidaux = 0;
-  pid_t *pids = malloc(3*sizeof(pid_t));
+  pid_t *pids = malloc(3*sizeof(pid_t)); //Vetor de filhos
 
   /* Definir flags de protecao e visibilidade de memoria */
   int protection = PROT_READ | PROT_WRITE;
   int visibility = MAP_SHARED | MAP_ANON;
 
-  //Criando um contador visivel para todos os processos
+  //Criando um contador de primos visivel para todos os processos
   int *c = (int*) mmap(NULL, sizeof(int), protection, visibility, 0, 0);
   *c = 0;
 
@@ -32,9 +32,10 @@ int main() {
   int *numc = (int*) mmap(NULL, sizeof(int), protection, visibility, 0, 0); // contador de num
   *numc = 0;
 
-  while (scanf("%ud ", &i) != EOF) {
+  while (scanf("%ud ", &i) != EOF) { //Lendo a entrada
       num[(*numc)++] = i;
   }
+
   int *numt = (int*) mmap(NULL, sizeof(int), protection, visibility, 0, 0); // tamanho de num
   *numt = *numc;
   *numc = 0;
@@ -42,13 +43,13 @@ int main() {
 
 
   while (*numc<*numt) {
-    if ((pids[0] != 0) && (pids[1] != 0) && (pids[2] != 0)) { // Se o vetor de pids está cheio
+    if ((pids[0] != 0) && (pids[1] != 0) && (pids[2] != 0)) { // Se o vetor de pids esta cheio
       pidaux = waitpid(-1, NULL, 0);
     } else {
       pidaux = 0;
     }
 
-    //Procurando qual posição de pid possui pidaux (0 ou o último pid liberado)
+    //Procurando qual posicao de pid possui pidaux (0 ou o ultimo pid liberado)
     if(pids[0] == pidaux)
       pidaux = 0;
     else if(pids[1] == pidaux)
@@ -56,13 +57,13 @@ int main() {
     else if(pids[2] == pidaux)
       pidaux = 2;
     pids[pidaux] = fork();
-    if(pids[pidaux] == 0) {
+    if(pids[pidaux] == 0) { //Codigo executado por cada filho
       *c += ehPrimo(num[(*numc)++]);
       exit(0);
     }
 
   }
-  for (j=0; j<3; j++) {
+  for (j=0; j<3; j++) { //Esperando os processos filhos terminarem
     waitpid(pids[j], NULL, 0);
   }
 
